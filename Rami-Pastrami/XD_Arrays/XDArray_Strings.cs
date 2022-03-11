@@ -1,4 +1,4 @@
-﻿//XDArrays - V0.8 Prerelease - Multidimensional arrays for VRC made easier!
+//XDArrays - V0.8 Prerelease - Multidimensional arrays for VRC made easier!
 //Created by Rami-Pastrami
 //Feel free to use in free/paid projects, but please credit!
 //uncomment the "#define VRC_DEBUG" line to output messages in logs to aid debugging (this should
@@ -12,7 +12,7 @@ using VRC.Udon;
 
 public class XDArray_Strings : UdonSharpBehaviour
 {
-private void Start()
+    private void Start()
     {
         Debug.Log("XDSArrays is being utilized! Created by Rami-Pastrami! If you are reading this you are a nerd!");
 #if (XDARRAYS_DEBUG)
@@ -20,7 +20,7 @@ private void Start()
 #endif
 
     }
-
+	
     //////////////////////////////////////////////////////////////
     ////////////////XDArray Creation & Conversion/////////////////
     //////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ private void Start()
         int startIndex = numDims + 1;
         string[] output = new string[(input.Length + numDims + 1)];
 
-        output[0] = numDims.ToString(); ; //number dimensions header
+        output[0] = numDims.ToString(); //number dimensions header
 
         for (int i = 1; i < startIndex; ++i) //dimension size header
         {
@@ -59,11 +59,11 @@ private void Start()
     }
 
     /// <summary>
-    /// Helper function for above, converts a 1D string array to a 1D XDSArray
+    /// Helper function for above, converts a 1D strings array to a 1D XDSArray
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
-    public string[] ConvertTo1DFArr(string[] input)
+    public string[] ConvertTo1DSArr(string[] input)
     {
         int[] dimensions = new int[] { input.Length };
         return ConvertToXDSArr(input, dimensions);
@@ -75,12 +75,12 @@ private void Start()
     /// </summary>
     /// <param name="XDSArr"></param>
     /// <returns></returns>
-    public string[] ConvertToFArr(string[] XDSArr)
+    public string[] ConvertToSArr(string[] XDSArr)
     {
         int offset = 1 + int.Parse(XDSArr[0]);
 
 #if XDARRAYS_DEBUG
-        Debug.Log("Attempting to convert XDSArr to a normal FArr, which had " + (offset - 1).ToString() + " dimensions");
+        Debug.Log("Attempting to convert XDSArr to a normal SArr, which had " + (offset - 1).ToString() + " dimensions");
 #endif
 
         string[] output = new string[(XDSArr.Length - offset)];
@@ -99,7 +99,7 @@ private void Start()
     public string[] CreateXDSArr(int[] dimensions)
     {
 #if XDARRAYS_DEBUG
-        Debug.Log("Creating empty XDArray of dimensions {" + D_IArray2StringCSV(dimensions) + "}");
+        Debug.Log("Creating empty XDSArray of dimensions {" + D_IArray2StringCSV(dimensions) + "}");
 #endif
         string[] output = new string[(1 + dimensions.Length + MultiplyIntArrElements(dimensions))];
         output[0] = dimensions.Length.ToString();
@@ -111,7 +111,7 @@ private void Start()
     }
 
     #endregion
-
+	
     //////////////////////////////////////////////////////////////
     //////////////Indexing, Coordinates, & Dimensions/////////////
     //////////////////////////////////////////////////////////////
@@ -126,7 +126,7 @@ private void Start()
     {
 
 #if XDARRAYS_DEBUG
-        Debug.Log("Checking number of dimensions in input XDArray...");
+        Debug.Log("Checking number of dimensions in input XDSArray...");
 #endif
 
         int[] output = new int[int.Parse(input[0])];
@@ -161,7 +161,7 @@ private void Start()
     }
 
     #endregion
-
+	
     //////////////////////////////////////////////////////////////
     /////////////////////////Reading Data/////////////////////////
     //////////////////////////////////////////////////////////////
@@ -185,7 +185,7 @@ private void Start()
     }
 
     /// <summary>
-    /// Loop-Optimized version of ReadSingleElementFromXDSArr, follow instructions of what variables to pass.
+    /// Loop-Optimized version of ReadSingleElementFromXD{L}}Arr, follow instructions of what variables to pass.
     /// This is done to avoid repetitive calculations
     /// </summary>
     /// <param name="readFrom"></param>
@@ -197,14 +197,14 @@ private void Start()
     {
         //calculate the following following this method. Not included in function for optimization reasons
         //but whatever is calling this function can get this functions inputs with the following methods
-        //int[] dims = ReadXDSArrDims(readFrom); 
+        //int[] dims = ReadXD{L}}ArrDims(readFrom); 
         //int[] kick = CalcPerCoordKick(dims);
         //int indexOffset = 1 + coords.Length;
         return readFrom[GetRawIndexFromCoordsFull(coords, kick, indexOffset)];
     }
 
     /// <summary>
-    /// read array segment of XDSArray into another XDSArray of the same number of dimensions
+    /// read array segment of XDSArray into another XD{L}}Array of the same number of dimensions
     /// </summary>
     /// <param name="readFrom"></param>
     /// <param name="readingStartCoords"></param>
@@ -220,7 +220,7 @@ private void Start()
         int[] readToKick = CalcPerCoordKick(distFromCords);
 
         int numElementsToRead = MultiplyIntArrElements(distFromCords);
-        int indexOffsetFromHeader = readingDims.Length + 1; //This is the same for all XDSArrays involved here!
+        int indexOffsetFromHeader = readingDims.Length + 1; //This is the same for all XDFArrays involved here!
 
         int[] incrementingCoords = new int[readingDims.Length]; //starts at 0,0,...nDims
         int rawIndex_readFrom = GetRawIndexFromCoordsFull(readingStartCoords, readingKick, indexOffsetFromHeader);
@@ -295,7 +295,7 @@ private void Start()
     }
 
     /// <summary>
-    /// overwrites set values of target XDRArray with source XDRArray starting from targetStartCoords
+    /// overwrites set values of target XDSArray with source XDSArray starting from targetStartCoords
     /// </summary>
     /// <param name="target"></param>
     /// <param name="targetStartCoords"></param>
@@ -316,7 +316,7 @@ private void Start()
         int rawIndexStartReadingFrom = indexOffsetFromHeader; //GetRawIndexFromCoordsFull(incrementingCoords, sourceKick, indexOffsetFromHeader);
 
 #if XDARRAYS_DEBUG
-        Debug.Log("Writing to XDArray of dimensions {" + D_IArray2StringCSV(targetDims) + "} starting from {" + D_IArray2StringCSV(targetStartCoords) + "} section of size {" + D_IArray2StringCSV(sourceDims) + "}");
+        Debug.Log("Writing to XDSArray of dimensions {" + D_IArray2StringCSV(targetDims) + "} starting from {" + D_IArray2StringCSV(targetStartCoords) + "} section of size {" + D_IArray2StringCSV(sourceDims) + "}");
 #endif
 
         target[rawIndexStartWritingTo] = source[rawIndexStartReadingFrom];
@@ -335,26 +335,12 @@ private void Start()
     }
 
     #endregion
-
+	
     //////////////////////////////////////////////////////////////
     /////////////////////////Debug Related////////////////////////
     //////////////////////////////////////////////////////////////
     #region Debug Related
 
-    /// <summary>
-    /// Converts a 1DFArr into a single string CSV
-    /// </summary>
-    /// <param name="i1DFArr"></param>
-    /// <returns></returns>
-    public string D_1DFArray2StringCSV(string[] i1DFArr)
-    {
-        string output = i1DFArr[2].ToString();
-        for (int i = 3; i < i1DFArr.Length; ++i)
-        {
-            output = output + ", " + i1DFArr[i].ToString();
-        }
-        return output.ToString();
-    }
 
     /// <summary>
     /// Converts a Int_Array (Not an XDArray!) into a single string CSV
@@ -372,20 +358,8 @@ private void Start()
         return output.ToString();
     }
 
-
-    /*
-    public string D_2DFArray2StringCSV(string[] i2DFArr)
-    {
-        int[] dims = ReadXDSArrDims(i2DFArr);
-        int[] coordsToRead = new int[2];
-        int[] endCoords = new int[] {}
-        string[] cacheArr = ReadXDSArrFromXDSArr(i2DFArr, coordsToRead)
-
-
-    }
-    */
     #endregion
-
+	
     //////////////////////////////////////////////////////////////
     ////////////////////////Work Functions////////////////////////
     //////////////////////////////////////////////////////////////

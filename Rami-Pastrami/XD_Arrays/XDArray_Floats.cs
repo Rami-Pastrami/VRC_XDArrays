@@ -1,4 +1,4 @@
-﻿//XDArrays - V0.8 Prerelease - Multidimensional arrays for VRC made easier!
+//XDArrays - V0.8 Prerelease - Multidimensional arrays for VRC made easier!
 //Created by Rami-Pastrami
 //Feel free to use in free/paid projects, but please credit!
 //uncomment the "#define VRC_DEBUG" line to output messages in logs to aid debugging (this should
@@ -20,7 +20,7 @@ public class XDArray_Floats : UdonSharpBehaviour
 #endif
 
     }
-
+	
     //////////////////////////////////////////////////////////////
     ////////////////XDArray Creation & Conversion/////////////////
     //////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ public class XDArray_Floats : UdonSharpBehaviour
 
         for (int i = 1; i < startIndex; ++i) //dimension size header
         {
-            output[i] = dimensions[(i - 1)];
+            output[i] = (float)dimensions[(i - 1)];
         }
 
         for (int i = startIndex; i < output.Length; ++i)
@@ -59,7 +59,7 @@ public class XDArray_Floats : UdonSharpBehaviour
     }
 
     /// <summary>
-    /// Helper function for above, converts a 1D float array to a 1D XDFArray
+    /// Helper function for above, converts a 1D floats array to a 1D XDFArray
     /// </summary>
     /// <param name="input"></param>
     /// <returns></returns>
@@ -99,7 +99,7 @@ public class XDArray_Floats : UdonSharpBehaviour
     public float[] CreateXDFArr(int[] dimensions)
     {
 #if XDARRAYS_DEBUG
-        Debug.Log("Creating empty XDArray of dimensions {" + D_IArray2StringCSV(dimensions) + "}");
+        Debug.Log("Creating empty XDFArray of dimensions {" + D_IArray2StringCSV(dimensions) + "}");
 #endif
         float[] output = new float[(1 + dimensions.Length + MultiplyIntArrElements(dimensions))];
         output[0] = (float)dimensions.Length;
@@ -111,7 +111,7 @@ public class XDArray_Floats : UdonSharpBehaviour
     }
 
     #endregion
-
+	
     //////////////////////////////////////////////////////////////
     //////////////Indexing, Coordinates, & Dimensions/////////////
     //////////////////////////////////////////////////////////////
@@ -126,7 +126,7 @@ public class XDArray_Floats : UdonSharpBehaviour
     {
 
 #if XDARRAYS_DEBUG
-        Debug.Log("Checking number of dimensions in input XDArray...");
+        Debug.Log("Checking number of dimensions in input XDFArray...");
 #endif
 
         int[] output = new int[Mathf.RoundToInt(input[0])];
@@ -161,7 +161,7 @@ public class XDArray_Floats : UdonSharpBehaviour
     }
 
     #endregion
-
+	
     //////////////////////////////////////////////////////////////
     /////////////////////////Reading Data/////////////////////////
     //////////////////////////////////////////////////////////////
@@ -185,7 +185,7 @@ public class XDArray_Floats : UdonSharpBehaviour
     }
 
     /// <summary>
-    /// Loop-Optimized version of ReadSingleElementFromXDFArr, follow instructions of what variables to pass.
+    /// Loop-Optimized version of ReadSingleElementFromXD{L}}Arr, follow instructions of what variables to pass.
     /// This is done to avoid repetitive calculations
     /// </summary>
     /// <param name="readFrom"></param>
@@ -197,14 +197,14 @@ public class XDArray_Floats : UdonSharpBehaviour
     {
         //calculate the following following this method. Not included in function for optimization reasons
         //but whatever is calling this function can get this functions inputs with the following methods
-        //int[] dims = ReadXDFArrDims(readFrom); 
+        //int[] dims = ReadXD{L}}ArrDims(readFrom); 
         //int[] kick = CalcPerCoordKick(dims);
         //int indexOffset = 1 + coords.Length;
         return readFrom[GetRawIndexFromCoordsFull(coords, kick, indexOffset)];
     }
 
     /// <summary>
-    /// read array segment of XDFArray into another XDFArray of the same number of dimensions
+    /// read array segment of XDFArray into another XD{L}}Array of the same number of dimensions
     /// </summary>
     /// <param name="readFrom"></param>
     /// <param name="readingStartCoords"></param>
@@ -295,7 +295,7 @@ public class XDArray_Floats : UdonSharpBehaviour
     }
 
     /// <summary>
-    /// overwrites set values of target XDRArray with source XDRArray starting from targetStartCoords
+    /// overwrites set values of target XDFArray with source XDFArray starting from targetStartCoords
     /// </summary>
     /// <param name="target"></param>
     /// <param name="targetStartCoords"></param>
@@ -316,7 +316,7 @@ public class XDArray_Floats : UdonSharpBehaviour
         int rawIndexStartReadingFrom = indexOffsetFromHeader; //GetRawIndexFromCoordsFull(incrementingCoords, sourceKick, indexOffsetFromHeader);
 
 #if XDARRAYS_DEBUG
-        Debug.Log("Writing to XDArray of dimensions {" + D_IArray2StringCSV(targetDims) + "} starting from {" + D_IArray2StringCSV(targetStartCoords) + "} section of size {" + D_IArray2StringCSV(sourceDims) + "}");
+        Debug.Log("Writing to XDFArray of dimensions {" + D_IArray2StringCSV(targetDims) + "} starting from {" + D_IArray2StringCSV(targetStartCoords) + "} section of size {" + D_IArray2StringCSV(sourceDims) + "}");
 #endif
 
         target[rawIndexStartWritingTo] = source[rawIndexStartReadingFrom];
@@ -335,13 +335,13 @@ public class XDArray_Floats : UdonSharpBehaviour
     }
 
     #endregion
-
+	
     //////////////////////////////////////////////////////////////
     /////////////////////////Debug Related////////////////////////
     //////////////////////////////////////////////////////////////
     #region Debug Related
 
-    /// <summary>
+	/// <summary>
     /// Converts a 1DFArr into a single string CSV
     /// </summary>
     /// <param name="i1DFArr"></param>
@@ -355,7 +355,7 @@ public class XDArray_Floats : UdonSharpBehaviour
         }
         return output.ToString();
     }
-
+	
     /// <summary>
     /// Converts a Int_Array (Not an XDArray!) into a single string CSV
     /// </summary>
@@ -372,20 +372,8 @@ public class XDArray_Floats : UdonSharpBehaviour
         return output.ToString();
     }
 
-
-    /*
-    public string D_2DFArray2StringCSV(float[] i2DFArr)
-    {
-        int[] dims = ReadXDFArrDims(i2DFArr);
-        int[] coordsToRead = new int[2];
-        int[] endCoords = new int[] {}
-        float[] cacheArr = ReadXDFArrFromXDFArr(i2DFArr, coordsToRead)
-
-
-    }
-    */
     #endregion
-
+	
     //////////////////////////////////////////////////////////////
     ////////////////////////Work Functions////////////////////////
     //////////////////////////////////////////////////////////////

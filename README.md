@@ -7,29 +7,35 @@ XDArrays is a set of classes with built in functions to emulate the use of multi
 Code is fully commented and documented for ease of use during development! 
 
 <h3 align="Left">Abilities</h3>
-- Create Multidimensional Arrays of specified dimensions and size
-- read From XDArrays, either single elements given their coordinates or a range of elements that will be outputted into another XDArray
-- write To XDArrays, with the same methods as above
-- convert normal 1D arrays to XDArrays and back
-- debug mode that can be toggled on from within the source, exports useful information to log when testing
+
+* Create Multidimensional Arrays of specified dimensions and size  
+* read From XDArrays, either single elements given their coordinates or a range of elements that will be outputted into another XDArray  
+* write To XDArrays, with the same methods as above  
+* convert normal 1D arrays to XDArrays and back  
+* debug mode that can be toggled on from within the source, exports useful information to log when testing  
+  
 
 <h3 align="Left">Supported Types</h3>
-- floats
-- ints
-- strings
-- Vector2/3/4
-- Quaternions
 
+* floats  
+* ints  
+* strings  
+* Vector2/3/4  
+* Quaternions  
+  
+  
 <h3 align="Left">Quick Guide</h3>
 
-Import the unity package into your project. Udonsharp must be installed. If we want to make a float XDArray, reference the float XDArray file from your script at top after including it in the unity world on some object.
+Import the unity package into your project. [Udonsharp](https://github.com/MerlinVR/UdonSharp). must be installed. If we want to make a float XDArray, reference the float XDArray file from your script at top after including it in the unity world on some object.
 
 ```
 public XDArray_Floats XDF;
 ```
 
 Lets create a new XDArray, in this case, a 3D 2 by 4 by 6 float array, using the above syntax:
-'float[] exampleXDArray = XDF.CreateXDFArr(new int[] {2, 4, 6});'
+```
+float[] exampleXDArray = XDF.CreateXDFArr(new int[] {2, 4, 6});
+```
 In this case, this function "CreateXDFArr" takes in an int array defining the dimensions of the XDArray. Since there are 3 dimensions, we know this array is 3D (3 Dimensional)
 
 
@@ -57,6 +63,7 @@ In this case, our first coordinate indicates where we start reading (in this cas
 
 XDArrays are all 1D arrays in C# in memory, and are technically referred as such in source.
 They are composed of 3 parts
+
 - index 0 lists the number of dimensions in the XDArray
 - index 1 -> (number of dimensions + 1) lists the length of each given dimensions
 - The actual data

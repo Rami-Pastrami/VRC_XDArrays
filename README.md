@@ -22,6 +22,7 @@ Code is fully commented and documented for ease of use during development!
 * strings  
 * Vector2/3/4  
 * Quaternions  
+* Color
   
   
 <h3 align="Left">Quick Guide</h3>

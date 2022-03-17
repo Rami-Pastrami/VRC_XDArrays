@@ -1,9 +1,18 @@
-//XDArrays - V0.8 Prerelease - Multidimensional arrays for VRC made easier!
+//XDArrays - V1.1 Release - Multidimensional arrays for VRC made easier!
 //Created by Rami-Pastrami
 //Feel free to use in free/paid projects, but please credit!
 //uncomment the "#define VRC_DEBUG" line to output messages in logs to aid debugging (this should
 //be turned off for public releases to avoid log spam!)
 //#define XDARRAYS_DEBUG
+//uncomment any lines if you want to allow conversion.
+//NOTE: Each conversion requires the class of that type!
+#define Convert_Color
+#define Convert_Float
+#define Convert_Int
+#define Convert_Quaternion
+#define Convert_Vector2
+#define Convert_Vector3
+#define Convert_Vector4
 
 using UdonSharp;
 using UnityEngine;
@@ -12,7 +21,33 @@ using VRC.Udon;
 
 public class XDArray_Floats : UdonSharpBehaviour
 {
-    private void Start()
+    
+#if (Convert_Color)
+    XDArray_Colors XDC;
+#endif
+#if (Convert_Float)
+	public XDArray_Floats XDF;
+#endif
+#if (Convert_Int)
+	public XDArray_Ints XDI;
+#endif
+#if (Convert_Quaternion)
+	public XDArray_Quaternions XDQ;
+#endif
+#if (Convert_Vector2)
+	public XDArray_Vector2s XDV2;
+#endif
+#if (Convert_Vector3)
+	public XDArray_Vector3s XDV3;
+#endif
+#if (Convert_Vector4)
+	public XDArray_Vector4s XDV4;
+#endif
+	
+	
+	
+	
+	private void Start()
     {
         Debug.Log("XDFArrays is being utilized! Created by Rami-Pastrami! If you are reading this you are a nerd!");
 #if (XDARRAYS_DEBUG)
@@ -113,9 +148,9 @@ public class XDArray_Floats : UdonSharpBehaviour
     #endregion
 	
     //////////////////////////////////////////////////////////////
-    //////////////Indexing, Coordinates, & Dimensions/////////////
+    ////////////////////Indexing & Coordinates////////////////////
     //////////////////////////////////////////////////////////////
-    #region Indexing, Coordinates, & Dimensions
+    #region Indexing & Coordinates
 
     /// <summary>
     /// returns dimension information from XDFArray
@@ -337,6 +372,304 @@ public class XDArray_Floats : UdonSharpBehaviour
     #endregion
 	
     //////////////////////////////////////////////////////////////
+    ///////////////////Manipulating Dimensions////////////////////
+    //////////////////////////////////////////////////////////////	
+	#region Manipulating Dimensions
+
+    /// <summary>
+    /// Appends a new dimension of length 1 to an XDFArray
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public float[] DimensionAddToXDFArray(float[] input)
+    {
+        float[] output = new float[input.Length + 1];
+        output[0] = (float)((input[0]) + 1);
+
+
+        //new dimensions
+        for (int i = 1; i < Mathf.RoundToInt(output[0]); ++i)
+        {
+            output[i] = input[i];
+        }
+        output[Mathf.RoundToInt((input[0]) + 1)] = 1;
+
+
+        //rest of data
+        for (int i = Mathf.RoundToInt(output[0]) + 1 ; i < output.Length; ++i)
+        {
+            output[i] = input[(i - 1)];
+        }
+
+        return output;
+    }
+
+    /// <summary>
+    /// Removes a dimension from an XDF array.
+    /// WARNING: DIMENSION MUST HAVE A LENGTH OF 1
+    /// Dimension index starts from 0 (to remove second dimensions, dimToRemove should be 1)
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="dimToRemove"></param>
+    /// <returns></returns>
+    public float[] DimensionsFlattenFromXDFArray(float[] input, int dimToRemove)
+    {
+#if XDARRAYS_DEBUG
+        if(Mathf.RoundToInt(input[dimToRemove + 1])  != 1 )
+        {
+            Debug.Log("XDFARRAY WARNING: Attempting to flatten a dimension not the length of 1! This WILL cause problems!");
+        }
+
+#endif
+
+        float[] output = new float[input.Length - 1];
+        output[0] = ((float)(input[0]) - 1);
+
+        //new dimensions
+        int index = 1;
+        for (int i = 0; i < Mathf.RoundToInt(input[0]); ++i)
+        {
+            Debug.Log(i.ToString());
+            if(i != dimToRemove)
+            {
+                output[index] = input[(i + 1)];
+                index++;
+            }
+        }
+
+        //rest of data
+        for(int i = Mathf.RoundToInt(input[0]); i < output.Length; ++i)
+        {
+            output[i] = input[(i + 1)];
+        }
+
+        return output;
+    }
+	
+	#endregion
+	
+	//////////////////////////////////////////////////////////////
+    ////////////////////////////Casting///////////////////////////
+    //////////////////////////////////////////////////////////////
+    #region Casting
+	
+public float[] XDCToXDF(Color[] XDCInput, int[] dimsOfInput)
+	{
+		int[] newDims = AddDimOfLength(dimsOfInput, 4);
+		float[] output = CreateXDFArr(newDims);
+        int[] incrementingCoordOut = new int[newDims.Length];
+        int[] incrementingCoordIn = new int[dimsOfInput.Length];
+        int[] kickOut = CalcPerCoordKick(newDims);
+        int[] kickIn = CalcPerCoordKick(dimsOfInput);
+        int indexOffsetOut = 1 + newDims.Length;
+        int indexOffsetIn = newDims.Length;
+        int numElementsIn = MultiplyIntArrElements(dimsOfInput);
+
+
+        //manually insert first set of values to output
+        output[(indexOffsetOut)] = XDCInput[indexOffsetIn].r; //for each element in the V3 array
+        output[(indexOffsetOut + (1 * kickOut[(kickOut.Length - 1)]))] = XDCInput[indexOffsetIn].g;
+        output[(indexOffsetOut + (2 * kickOut[(kickOut.Length - 1)]))] = XDCInput[indexOffsetIn].b;
+		output[(indexOffsetOut + (3 * kickOut[(kickOut.Length - 1)]))] = XDCInput[indexOffsetIn].a;
+
+        //we done the first coordinate, skip it
+        incrementingCoordOut[0] = 1;
+        incrementingCoordIn[0] = 1;
+
+        //now loop through all other coordinates
+        for(int i = 1; i < numElementsIn; ++i)
+        {
+            incrementingCoordOut = IncrementDimCoords(incrementingCoordOut, newDims, i);
+            incrementingCoordIn = IncrementDimCoords(incrementingCoordIn, dimsOfInput, i);
+            incrementingCoordOut[incrementingCoordIn.Length] = 0; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDC.ReadSingleElementFromXDCArr_OPT(XDCInput, incrementingCoordIn, kickIn, indexOffsetIn).r, kickOut, indexOffsetOut);
+            incrementingCoordOut[incrementingCoordIn.Length] = 1; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDC.ReadSingleElementFromXDCArr_OPT(XDCInput, incrementingCoordIn, kickIn, indexOffsetIn).g, kickOut, indexOffsetOut);
+            incrementingCoordOut[incrementingCoordIn.Length] = 2; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDC.ReadSingleElementFromXDCArr_OPT(XDCInput, incrementingCoordIn, kickIn, indexOffsetIn).b, kickOut, indexOffsetOut);
+            incrementingCoordOut[incrementingCoordIn.Length] = 3; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDC.ReadSingleElementFromXDCArr_OPT(XDCInput, incrementingCoordIn, kickIn, indexOffsetIn).a, kickOut, indexOffsetOut);
+        }
+        return output;
+    }
+	
+	public float[] XDIToXDF(int[] XDIInput)
+	{
+		float[] output = new float[XDIInput.Length];
+		for(int i = 0; i < XDIInput.Length; ++i)
+		{
+			output[i] = (float)XDIInput[i];
+		}
+		return output;
+	}
+	
+	public float[] XDSToXDF(string[] XDSInput)
+	{
+		float[] output = new float[XDSInput.Length];
+		for(int i = 0; i < XDSInput.Length; ++i)
+		{
+			output[i] = float.Parse(XDSInput[i]);
+		}
+		return output;
+	}
+	
+	public float[] XDQToXDF(Quaternion[] XDQInput, int[] dimsOfInput)
+	{
+		int[] newDims = AddDimOfLength(dimsOfInput, 4);
+		float[] output = CreateXDFArr(newDims);
+        int[] incrementingCoordOut = new int[newDims.Length];
+        int[] incrementingCoordIn = new int[dimsOfInput.Length];
+        int[] kickOut = CalcPerCoordKick(newDims);
+        int[] kickIn = CalcPerCoordKick(dimsOfInput);
+        int indexOffsetOut = 1 + newDims.Length;
+        int indexOffsetIn = newDims.Length;
+        int numElementsIn = MultiplyIntArrElements(dimsOfInput);
+
+
+        //manually insert first set of values to output
+        output[(indexOffsetOut)] = XDQInput[indexOffsetIn].x; //for each element in the V3 array
+        output[(indexOffsetOut + (1 * kickOut[(kickOut.Length - 1)]))] = XDQInput[indexOffsetIn].y;
+        output[(indexOffsetOut + (2 * kickOut[(kickOut.Length - 1)]))] = XDQInput[indexOffsetIn].z;
+		output[(indexOffsetOut + (3 * kickOut[(kickOut.Length - 1)]))] = XDQInput[indexOffsetIn].w;
+
+        //we done the first coordinate, skip it
+        incrementingCoordOut[0] = 1;
+        incrementingCoordIn[0] = 1;
+
+        //now loop through all other coordinates
+        for(int i = 1; i < numElementsIn; ++i)
+        {
+            incrementingCoordOut = IncrementDimCoords(incrementingCoordOut, newDims, i);
+            incrementingCoordIn = IncrementDimCoords(incrementingCoordIn, dimsOfInput, i);
+            incrementingCoordOut[incrementingCoordIn.Length] = 0; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDQ.ReadSingleElementFromXDQArr_OPT(XDQInput, incrementingCoordIn, kickIn, indexOffsetIn).x, kickOut, indexOffsetOut);
+            incrementingCoordOut[incrementingCoordIn.Length] = 1; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDQ.ReadSingleElementFromXDQArr_OPT(XDQInput, incrementingCoordIn, kickIn, indexOffsetIn).y, kickOut, indexOffsetOut);
+            incrementingCoordOut[incrementingCoordIn.Length] = 2; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDQ.ReadSingleElementFromXDQArr_OPT(XDQInput, incrementingCoordIn, kickIn, indexOffsetIn).z, kickOut, indexOffsetOut);
+            incrementingCoordOut[incrementingCoordIn.Length] = 3; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDQ.ReadSingleElementFromXDQArr_OPT(XDQInput, incrementingCoordIn, kickIn, indexOffsetIn).w, kickOut, indexOffsetOut);
+        }
+        return output;
+    }
+	
+	public float[] XDV2ToXDF(Vector2[] XDV2Input, int[] dimsOfInput)
+	{
+		int[] newDims = AddDimOfLength(dimsOfInput, 2);
+		float[] output = CreateXDFArr(newDims);
+        int[] incrementingCoordOut = new int[newDims.Length];
+        int[] incrementingCoordIn = new int[dimsOfInput.Length];
+        int[] kickOut = CalcPerCoordKick(newDims);
+        int[] kickIn = CalcPerCoordKick(dimsOfInput);
+        int indexOffsetOut = 1 + newDims.Length;
+        int indexOffsetIn = newDims.Length;
+        int numElementsIn = MultiplyIntArrElements(dimsOfInput);
+
+
+        //manually insert first set of values to output
+        output[(indexOffsetOut)] = XDV2Input[indexOffsetIn][0]; //for each element in the V2 array
+        output[(indexOffsetOut + (1 * kickOut[(kickOut.Length - 1)]))] = XDV2Input[indexOffsetIn][1];
+
+
+        //we done the first coordinate, skip it
+        incrementingCoordOut[0] = 1;
+        incrementingCoordIn[0] = 1;
+
+        //now loop through all other coordinates
+        for(int i = 1; i < numElementsIn; ++i)
+        {
+            incrementingCoordOut = IncrementDimCoords(incrementingCoordOut, newDims, i);
+            incrementingCoordIn = IncrementDimCoords(incrementingCoordIn, dimsOfInput, i);
+            incrementingCoordOut[incrementingCoordIn.Length] = 0; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDV2.ReadSingleElementFromXDV2Arr_OPT(XDV2Input, incrementingCoordIn, kickIn, indexOffsetIn)[0], kickOut, indexOffsetOut);
+            incrementingCoordOut[incrementingCoordIn.Length] = 1; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDV2.ReadSingleElementFromXDV2Arr_OPT(XDV2Input, incrementingCoordIn, kickIn, indexOffsetIn)[1], kickOut, indexOffsetOut);
+        }
+
+        return output;
+    }
+	
+	public float[] XDV3ToXDF(Vector3[] XDV3Input, int[] dimsOfInput)
+	{
+		int[] newDims = AddDimOfLength(dimsOfInput, 3);
+		float[] output = CreateXDFArr(newDims);
+        int[] incrementingCoordOut = new int[newDims.Length];
+        int[] incrementingCoordIn = new int[dimsOfInput.Length];
+        int[] kickOut = CalcPerCoordKick(newDims);
+        int[] kickIn = CalcPerCoordKick(dimsOfInput);
+        int indexOffsetOut = 1 + newDims.Length;
+        int indexOffsetIn = newDims.Length;
+        int numElementsIn = MultiplyIntArrElements(dimsOfInput);
+
+
+        //manually insert first set of values to output
+        output[(indexOffsetOut)] = XDV3Input[indexOffsetIn][0]; //for each element in the V3 array
+        output[(indexOffsetOut + (1 * kickOut[(kickOut.Length - 1)]))] = XDV3Input[indexOffsetIn][1];
+        output[(indexOffsetOut + (2 * kickOut[(kickOut.Length - 1)]))] = XDV3Input[indexOffsetIn][2];
+
+        //we done the first coordinate, skip it
+        incrementingCoordOut[0] = 1;
+        incrementingCoordIn[0] = 1;
+
+        //now loop through all other coordinates
+        for(int i = 1; i < numElementsIn; ++i)
+        {
+            incrementingCoordOut = IncrementDimCoords(incrementingCoordOut, newDims, i);
+            incrementingCoordIn = IncrementDimCoords(incrementingCoordIn, dimsOfInput, i);
+            incrementingCoordOut[incrementingCoordIn.Length] = 0; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDV3.ReadSingleElementFromXDV3Arr_OPT(XDV3Input, incrementingCoordIn, kickIn, indexOffsetIn)[0], kickOut, indexOffsetOut);
+            incrementingCoordOut[incrementingCoordIn.Length] = 1; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDV3.ReadSingleElementFromXDV3Arr_OPT(XDV3Input, incrementingCoordIn, kickIn, indexOffsetIn)[1], kickOut, indexOffsetOut);
+            incrementingCoordOut[incrementingCoordIn.Length] = 2; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDV3.ReadSingleElementFromXDV3Arr_OPT(XDV3Input, incrementingCoordIn, kickIn, indexOffsetIn)[2], kickOut, indexOffsetOut);
+
+        }
+
+        return output;
+    }
+	
+	public float[] XDV4ToXDF(Vector4[] XDV4Input, int[] dimsOfInput)
+	{
+		int[] newDims = AddDimOfLength(dimsOfInput, 4);
+		float[] output = CreateXDFArr(newDims);
+        int[] incrementingCoordOut = new int[newDims.Length];
+        int[] incrementingCoordIn = new int[dimsOfInput.Length];
+        int[] kickOut = CalcPerCoordKick(newDims);
+        int[] kickIn = CalcPerCoordKick(dimsOfInput);
+        int indexOffsetOut = 1 + newDims.Length;
+        int indexOffsetIn = newDims.Length;
+        int numElementsIn = MultiplyIntArrElements(dimsOfInput);
+
+
+        //manually insert first set of values to output
+        output[(indexOffsetOut)] = XDV4Input[indexOffsetIn][0]; //for each element in the V3 array
+        output[(indexOffsetOut + (1 * kickOut[(kickOut.Length - 1)]))] = XDV4Input[indexOffsetIn][1];
+        output[(indexOffsetOut + (2 * kickOut[(kickOut.Length - 1)]))] = XDV4Input[indexOffsetIn][2];
+		output[(indexOffsetOut + (3 * kickOut[(kickOut.Length - 1)]))] = XDV4Input[indexOffsetIn][3];
+
+        //we done the first coordinate, skip it
+        incrementingCoordOut[0] = 1;
+        incrementingCoordIn[0] = 1;
+
+        //now loop through all other coordinates
+        for(int i = 1; i < numElementsIn; ++i)
+        {
+            incrementingCoordOut = IncrementDimCoords(incrementingCoordOut, newDims, i);
+            incrementingCoordIn = IncrementDimCoords(incrementingCoordIn, dimsOfInput, i);
+            incrementingCoordOut[incrementingCoordIn.Length] = 0; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDV4.ReadSingleElementFromXDV4Arr_OPT(XDV4Input, incrementingCoordIn, kickIn, indexOffsetIn)[0], kickOut, indexOffsetOut);
+            incrementingCoordOut[incrementingCoordIn.Length] = 1; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDV4.ReadSingleElementFromXDV4Arr_OPT(XDV4Input, incrementingCoordIn, kickIn, indexOffsetIn)[1], kickOut, indexOffsetOut);
+            incrementingCoordOut[incrementingCoordIn.Length] = 2; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDV4.ReadSingleElementFromXDV4Arr_OPT(XDV4Input, incrementingCoordIn, kickIn, indexOffsetIn)[2], kickOut, indexOffsetOut);
+            incrementingCoordOut[incrementingCoordIn.Length] = 3; //manual increment
+            WriteSingleElementToXDFArray_OPT(output, incrementingCoordOut, XDV4.ReadSingleElementFromXDV4Arr_OPT(XDV4Input, incrementingCoordIn, kickIn, indexOffsetIn)[3], kickOut, indexOffsetOut);
+        }
+        return output;
+    }
+	    #endregion
+	
+    //////////////////////////////////////////////////////////////
     /////////////////////////Debug Related////////////////////////
     //////////////////////////////////////////////////////////////
     #region Debug Related
@@ -456,6 +789,24 @@ public class XDArray_Floats : UdonSharpBehaviour
         return coord;
 
     }
+	
+	/// <summary>
+    /// Appends additional dimension to dimension Array of specified length
+    /// </summary>
+    /// <param name="dimArr"></param>
+    /// <param name="newDimLength"></param>
+    /// <returns></returns>
+	private int[] AddDimOfLength(int[] dimArr, int newDimLength)
+	{
+		int[] output = new int[dimArr.Length + 1];
+		for(int i = 0; i < dimArr.Length; ++i)
+		{
+			output[i] = dimArr[i];
+		}
+		output[dimArr.Length] = newDimLength;
+		return output;
+	}
+	
 
     #endregion
 }

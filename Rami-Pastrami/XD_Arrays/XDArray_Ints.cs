@@ -1,9 +1,12 @@
-//XDArrays - V0.8 Prerelease - Multidimensional arrays for VRC made easier!
+//XDArrays - V1.1 Release - Multidimensional arrays for VRC made easier!
 //Created by Rami-Pastrami
 //Feel free to use in free/paid projects, but please credit!
 //uncomment the "#define VRC_DEBUG" line to output messages in logs to aid debugging (this should
 //be turned off for public releases to avoid log spam!)
 //#define XDARRAYS_DEBUG
+//uncomment any lines if you want to allow conversion.
+//NOTE: Each conversion requires the class of that type!
+
 
 using UdonSharp;
 using UnityEngine;
@@ -12,7 +15,12 @@ using VRC.Udon;
 
 public class XDArray_Ints : UdonSharpBehaviour
 {
-    private void Start()
+    
+	
+	
+	
+	
+	private void Start()
     {
         Debug.Log("XDIArrays is being utilized! Created by Rami-Pastrami! If you are reading this you are a nerd!");
 #if (XDARRAYS_DEBUG)
@@ -113,9 +121,9 @@ public class XDArray_Ints : UdonSharpBehaviour
     #endregion
 	
     //////////////////////////////////////////////////////////////
-    //////////////Indexing, Coordinates, & Dimensions/////////////
+    ////////////////////Indexing & Coordinates////////////////////
     //////////////////////////////////////////////////////////////
-    #region Indexing, Coordinates, & Dimensions
+    #region Indexing & Coordinates
 
     /// <summary>
     /// returns dimension information from XDIArray
@@ -337,6 +345,90 @@ public class XDArray_Ints : UdonSharpBehaviour
     #endregion
 	
     //////////////////////////////////////////////////////////////
+    ///////////////////Manipulating Dimensions////////////////////
+    //////////////////////////////////////////////////////////////	
+	#region Manipulating Dimensions
+
+    /// <summary>
+    /// Appends a new dimension of length 1 to an XDIArray
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public int[] DimensionAddToXDIArray(int[] input)
+    {
+        int[] output = new int[input.Length + 1];
+        output[0] = ((input[0]) + 1);
+
+
+        //new dimensions
+        for (int i = 1; i < (output[0]); ++i)
+        {
+            output[i] = input[i];
+        }
+        output[((input[0]) + 1)] = 1;
+
+
+        //rest of data
+        for (int i = (output[0]) + 1 ; i < output.Length; ++i)
+        {
+            output[i] = input[(i - 1)];
+        }
+
+        return output;
+    }
+
+    /// <summary>
+    /// Removes a dimension from an XDI array.
+    /// WARNING: DIMENSION MUST HAVE A LENGTH OF 1
+    /// Dimension index starts from 0 (to remove second dimensions, dimToRemove should be 1)
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="dimToRemove"></param>
+    /// <returns></returns>
+    public int[] DimensionsFlattenFromXDIArray(int[] input, int dimToRemove)
+    {
+#if XDARRAYS_DEBUG
+        if((input[dimToRemove + 1])  != 1 )
+        {
+            Debug.Log("XDIARRAY WARNING: Attempting to flatten a dimension not the length of 1! This WILL cause problems!");
+        }
+
+#endif
+
+        int[] output = new int[input.Length - 1];
+        output[0] = ((input[0]) - 1);
+
+        //new dimensions
+        int index = 1;
+        for (int i = 0; i < (input[0]); ++i)
+        {
+            Debug.Log(i.ToString());
+            if(i != dimToRemove)
+            {
+                output[index] = input[(i + 1)];
+                index++;
+            }
+        }
+
+        //rest of data
+        for(int i = (input[0]); i < output.Length; ++i)
+        {
+            output[i] = input[(i + 1)];
+        }
+
+        return output;
+    }
+	
+	#endregion
+	
+	//////////////////////////////////////////////////////////////
+    ////////////////////////////Casting///////////////////////////
+    //////////////////////////////////////////////////////////////
+    #region Casting
+	
+    #endregion
+	
+    //////////////////////////////////////////////////////////////
     /////////////////////////Debug Related////////////////////////
     //////////////////////////////////////////////////////////////
     #region Debug Related
@@ -442,6 +534,24 @@ public class XDArray_Ints : UdonSharpBehaviour
         return coord;
 
     }
+	
+	/// <summary>
+    /// Appends additional dimension to dimension Array of specified length
+    /// </summary>
+    /// <param name="dimArr"></param>
+    /// <param name="newDimLength"></param>
+    /// <returns></returns>
+	private int[] AddDimOfLength(int[] dimArr, int newDimLength)
+	{
+		int[] output = new int[dimArr.Length + 1];
+		for(int i = 0; i < dimArr.Length; ++i)
+		{
+			output[i] = dimArr[i];
+		}
+		output[dimArr.Length] = newDimLength;
+		return output;
+	}
+	
 
     #endregion
 }

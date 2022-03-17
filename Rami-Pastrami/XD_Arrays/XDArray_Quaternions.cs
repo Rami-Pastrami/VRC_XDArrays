@@ -1,9 +1,12 @@
-//XDArrays - V0.8 Prerelease - Multidimensional arrays for VRC made easier!
+//XDArrays - V1.1 Release - Multidimensional arrays for VRC made easier!
 //Created by Rami-Pastrami
 //Feel free to use in free/paid projects, but please credit!
 //uncomment the "#define VRC_DEBUG" line to output messages in logs to aid debugging (this should
 //be turned off for public releases to avoid log spam!)
 //#define XDARRAYS_DEBUG
+//uncomment any lines if you want to allow conversion.
+//NOTE: Each conversion requires the class of that type!
+
 
 using UdonSharp;
 using UnityEngine;
@@ -12,7 +15,12 @@ using VRC.Udon;
 
 public class XDArray_Quaternions : UdonSharpBehaviour
 {
-    private void Start()
+    
+	
+	
+	
+	
+	private void Start()
     {
         Debug.Log("XDQArrays is being utilized! Created by Rami-Pastrami! If you are reading this you are a nerd!");
 #if (XDARRAYS_DEBUG)
@@ -113,9 +121,9 @@ public class XDArray_Quaternions : UdonSharpBehaviour
     #endregion
 	
     //////////////////////////////////////////////////////////////
-    //////////////Indexing, Coordinates, & Dimensions/////////////
+    ////////////////////Indexing & Coordinates////////////////////
     //////////////////////////////////////////////////////////////
-    #region Indexing, Coordinates, & Dimensions
+    #region Indexing & Coordinates
 
     /// <summary>
     /// returns dimension information from XDQArray
@@ -337,6 +345,90 @@ public class XDArray_Quaternions : UdonSharpBehaviour
     #endregion
 	
     //////////////////////////////////////////////////////////////
+    ///////////////////Manipulating Dimensions////////////////////
+    //////////////////////////////////////////////////////////////	
+	#region Manipulating Dimensions
+
+    /// <summary>
+    /// Appends a new dimension of length 1 to an XDQArray
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public Quaternion[] DimensionAddToXDQArray(Quaternion[] input)
+    {
+        Quaternion[] output = new Quaternion[input.Length + 1];
+        output[0].w = (float)((input[0]).w + 1);
+
+
+        //new dimensions
+        for (int i = 1; i < Mathf.RoundToInt(output[0].w); ++i)
+        {
+            output[i] = input[i];
+        }
+        output[Mathf.RoundToInt((input[0].w) + 1)].w = 1;
+
+
+        //rest of data
+        for (int i = Mathf.RoundToInt(output[0].w) + 1 ; i < output.Length; ++i)
+        {
+            output[i] = input[(i - 1)];
+        }
+
+        return output;
+    }
+
+    /// <summary>
+    /// Removes a dimension from an XDQ array.
+    /// WARNING: DIMENSION MUST HAVE A LENGTH OF 1
+    /// Dimension index starts from 0 (to remove second dimensions, dimToRemove should be 1)
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="dimToRemove"></param>
+    /// <returns></returns>
+    public Quaternion[] DimensionsFlattenFromXDQArray(Quaternion[] input, int dimToRemove)
+    {
+#if XDARRAYS_DEBUG
+        if(Mathf.RoundToInt(input[dimToRemove + 1].w)  != 1 )
+        {
+            Debug.Log("XDQARRAY WARNING: Attempting to flatten a dimension not the length of 1! This WILL cause problems!");
+        }
+
+#endif
+
+        Quaternion[] output = new Quaternion[input.Length - 1];
+        output[0].w = ((float)(input[0]).w - 1);
+
+        //new dimensions
+        int index = 1;
+        for (int i = 0; i < Mathf.RoundToInt(input[0].w); ++i)
+        {
+            Debug.Log(i.ToString());
+            if(i != dimToRemove)
+            {
+                output[index] = input[(i + 1)];
+                index++;
+            }
+        }
+
+        //rest of data
+        for(int i = Mathf.RoundToInt(input[0].w); i < output.Length; ++i)
+        {
+            output[i] = input[(i + 1)];
+        }
+
+        return output;
+    }
+	
+	#endregion
+	
+	//////////////////////////////////////////////////////////////
+    ////////////////////////////Casting///////////////////////////
+    //////////////////////////////////////////////////////////////
+    #region Casting
+	
+    #endregion
+	
+    //////////////////////////////////////////////////////////////
     /////////////////////////Debug Related////////////////////////
     //////////////////////////////////////////////////////////////
     #region Debug Related
@@ -442,6 +534,24 @@ public class XDArray_Quaternions : UdonSharpBehaviour
         return coord;
 
     }
+	
+	/// <summary>
+    /// Appends additional dimension to dimension Array of specified length
+    /// </summary>
+    /// <param name="dimArr"></param>
+    /// <param name="newDimLength"></param>
+    /// <returns></returns>
+	private int[] AddDimOfLength(int[] dimArr, int newDimLength)
+	{
+		int[] output = new int[dimArr.Length + 1];
+		for(int i = 0; i < dimArr.Length; ++i)
+		{
+			output[i] = dimArr[i];
+		}
+		output[dimArr.Length] = newDimLength;
+		return output;
+	}
+	
 
     #endregion
 }

@@ -15,17 +15,13 @@ using VRC.Udon;
 
 public class XDArray_Quaternions : UdonSharpBehaviour
 {
-    
-	
-	
-	
-	
+
 	private void Start()
     {
         Debug.Log("XDQArrays is being utilized! Created by Rami-Pastrami! If you are reading this you are a nerd!");
-#if (XDARRAYS_DEBUG)
-        Debug.Log("XDQArrays Debug Mode is Enabled! If you are seeing this in a public map, please tell the creator to disable this!");
-#endif
+		#if (XDARRAYS_DEBUG)
+			Debug.Log("XDQArrays Debug Mode is Enabled! If you are seeing this in a public map, please tell the creator to disable this!");
+		#endif
 
     }
 	
@@ -59,9 +55,9 @@ public class XDArray_Quaternions : UdonSharpBehaviour
             output[i] = input[(i - startIndex)];
         }
 
-#if XDARRAYS_DEBUG
-        Debug.Log("Converted normal QuaternionArr to XDQArr with Dimensions {" + D_IArray2StringCSV(dimensions) + "}");
-#endif
+		#if XDARRAYS_DEBUG
+			Debug.Log("Converted normal QuaternionArr to XDQArr with Dimensions {" + D_IArray2StringCSV(dimensions) + "}");
+		#endif
 
         return output;
     }
@@ -87,9 +83,9 @@ public class XDArray_Quaternions : UdonSharpBehaviour
     {
         int offset = 1 + Mathf.RoundToInt(XDQArr[0].w);
 
-#if XDARRAYS_DEBUG
-        Debug.Log("Attempting to convert XDQArr to a normal QArr, which had " + (offset - 1).ToString() + " dimensions");
-#endif
+		#if XDARRAYS_DEBUG
+			Debug.Log("Attempting to convert XDQArr to a normal QArr, which had " + (offset - 1).ToString() + " dimensions");
+		#endif
 
         Quaternion[] output = new Quaternion[(XDQArr.Length - offset)];
         for (int i = offset; i < XDQArr.Length; ++i)
@@ -106,9 +102,9 @@ public class XDArray_Quaternions : UdonSharpBehaviour
     /// <returns></returns>
     public Quaternion[] CreateXDQArr(int[] dimensions)
     {
-#if XDARRAYS_DEBUG
-        Debug.Log("Creating empty XDQArray of dimensions {" + D_IArray2StringCSV(dimensions) + "}");
-#endif
+		#if XDARRAYS_DEBUG
+			Debug.Log("Creating empty XDQArray of dimensions {" + D_IArray2StringCSV(dimensions) + "}");
+		#endif
         Quaternion[] output = new Quaternion[(1 + dimensions.Length + MultiplyIntArrElements(dimensions))];
         output[0].w = dimensions.Length;
         for (int i = 0; i < (dimensions.Length); ++i)
@@ -133,26 +129,23 @@ public class XDArray_Quaternions : UdonSharpBehaviour
     public int[] ReadXDQArrDims(Quaternion[] input)
     {
 
-#if XDARRAYS_DEBUG
-        Debug.Log("Checking number of dimensions in input XDQArray...");
-#endif
+		#if XDARRAYS_DEBUG
+			Debug.Log("Checking number of dimensions in input XDQArray...");
+		#endif
 
         int[] output = new int[Mathf.RoundToInt(input[0].w)];
         for (int i = 0; i < (output.Length); ++i)
         {
             output[i] = Mathf.RoundToInt(input[(i + 1)].w);
         }
-
-#if XDARRAYS_DEBUG
-        Debug.Log("Confirmed dimensions are {" + D_IArray2StringCSV(output) + "}");
-#endif
-
+		#if XDARRAYS_DEBUG
+			Debug.Log("Confirmed dimensions are {" + D_IArray2StringCSV(output) + "}");
+		#endif
         return output;
     }
 
     /// <summary>
     /// Gets the raw index of the array from a given coordinate
-    /// 
     /// </summary>
     /// <param name="coords"></param>
     /// <param name="kick"></param>
@@ -164,7 +157,6 @@ public class XDArray_Quaternions : UdonSharpBehaviour
         {
             indexOffset += (coords[coordIndex] * kick[coordIndex]);
         }
-
         return indexOffset;
     }
 
@@ -184,9 +176,9 @@ public class XDArray_Quaternions : UdonSharpBehaviour
     /// <returns></returns>
     public Quaternion ReadSingleElementFromXDQArr(Quaternion[] readFrom, int[] coords)
     {
-#if XDARRAYS_DEBUG
-        Debug.Log("Reading element in coord {" + D_IArray2StringCSV(coords) + "} from XDArray of dimensions {" + D_IArray2StringCSV(ReadXDQArrDims(readFrom)) + "}");
-#endif
+		#if XDARRAYS_DEBUG
+			Debug.Log("Reading element in coord {" + D_IArray2StringCSV(coords) + "} from XDArray of dimensions {" + D_IArray2StringCSV(ReadXDQArrDims(readFrom)) + "}");
+		#endif
         int[] kick = CalcPerCoordKick(ReadXDQArrDims(readFrom));
         int indexOffset = 1 + coords.Length;
         return readFrom[GetRawIndexFromCoordsFull(coords, kick, indexOffset)];
@@ -234,22 +226,26 @@ public class XDArray_Quaternions : UdonSharpBehaviour
         int rawIndex_readFrom = GetRawIndexFromCoordsFull(readingStartCoords, readingKick, indexOffsetFromHeader);
         int rawIndex_readTo = indexOffsetFromHeader;
 
-#if XDARRAYS_DEBUG
-        Debug.Log("Reading from XDArray of dimensions {" + D_IArray2StringCSV(readingDims) + "} starting from {" + D_IArray2StringCSV(readingStartCoords) + "} section of size {" + D_IArray2StringCSV(distFromCords) + "}");
-#endif
+		#if XDARRAYS_DEBUG
+			Debug.Log("Reading from XDArray of dimensions {" + D_IArray2StringCSV(readingDims) + "} starting from {" + D_IArray2StringCSV(readingStartCoords) + "} section of size {" + D_IArray2StringCSV(distFromCords) + "}");
+		#endif
 
         readTo[rawIndex_readTo] = readFrom[rawIndex_readFrom]; //IncrementDimCoords is not smart enough to start with 0,0,0..., so we are doing that seperately
         for (int i = 1; i < numElementsToRead; ++i)
         {
             incrementingCoords = IncrementDimCoords(incrementingCoords, distFromCords, i);
-#if XDARRAYS_DEBUG
-            Debug.Log("Reading Coordinate {" + D_IArray2StringCSV(AddIntArrs(readingStartCoords, incrementingCoords)) + "}");
-#endif
+			
+			#if XDARRAYS_DEBUG
+				Debug.Log("Reading Coordinate {" + D_IArray2StringCSV(AddIntArrs(readingStartCoords, incrementingCoords)) + "}");
+			#endif
+			
             rawIndex_readFrom = GetRawIndexFromCoordsFull(AddIntArrs(readingStartCoords, incrementingCoords), readingKick, indexOffsetFromHeader);
             rawIndex_readTo = GetRawIndexFromCoordsFull(incrementingCoords, readToKick, indexOffsetFromHeader);
-#if XDARRAYS_DEBUG
-            Debug.Log("Wrote value {" + readFrom[rawIndex_readFrom] + "}");
-#endif
+			
+			#if XDARRAYS_DEBUG
+				Debug.Log("Wrote value {" + readFrom[rawIndex_readFrom] + "}");
+			#endif
+			
             readTo[rawIndex_readTo] = readFrom[rawIndex_readFrom];
         }
 
@@ -273,9 +269,9 @@ public class XDArray_Quaternions : UdonSharpBehaviour
     /// <returns></returns>
     public Quaternion[] WriteSingleElementToXDQArray(Quaternion[] writeTo, int[] coords, Quaternion ValueToWrite)
     {
-#if XDARRAYS_DEBUG
-        Debug.Log("writing value {" + ValueToWrite.ToString() + "} in coord {" + D_IArray2StringCSV(coords) + "} from XDArray of dimensions {" + D_IArray2StringCSV(ReadXDQArrDims(writeTo)) + "}");
-#endif        
+		#if XDARRAYS_DEBUG
+			Debug.Log("writing value {" + ValueToWrite.ToString() + "} in coord {" + D_IArray2StringCSV(coords) + "} from XDArray of dimensions {" + D_IArray2StringCSV(ReadXDQArrDims(writeTo)) + "}");
+		#endif        
         int[] kick = CalcPerCoordKick(ReadXDQArrDims(writeTo));
         int indexOffset = 1 + coords.Length;
         writeTo[GetRawIndexFromCoordsFull(coords, kick, indexOffset)] = ValueToWrite;
@@ -323,9 +319,9 @@ public class XDArray_Quaternions : UdonSharpBehaviour
         int rawIndexStartWritingTo = GetRawIndexFromCoordsFull(targetStartCoords, targetKick, indexOffsetFromHeader); //raw index starting point for writing
         int rawIndexStartReadingFrom = indexOffsetFromHeader; //GetRawIndexFromCoordsFull(incrementingCoords, sourceKick, indexOffsetFromHeader);
 
-#if XDARRAYS_DEBUG
-        Debug.Log("Writing to XDQArray of dimensions {" + D_IArray2StringCSV(targetDims) + "} starting from {" + D_IArray2StringCSV(targetStartCoords) + "} section of size {" + D_IArray2StringCSV(sourceDims) + "}");
-#endif
+		#if XDARRAYS_DEBUG
+			Debug.Log("Writing to XDQArray of dimensions {" + D_IArray2StringCSV(targetDims) + "} starting from {" + D_IArray2StringCSV(targetStartCoords) + "} section of size {" + D_IArray2StringCSV(sourceDims) + "}");
+		#endif
 
         target[rawIndexStartWritingTo] = source[rawIndexStartReadingFrom];
         for (int i = 1; i < numElementsToWrite; ++i)
@@ -333,9 +329,11 @@ public class XDArray_Quaternions : UdonSharpBehaviour
             incrementingCoords = IncrementDimCoords(incrementingCoords, sourceDims, i);
             rawIndexStartWritingTo = GetRawIndexFromCoordsFull(AddIntArrs(targetStartCoords, incrementingCoords), targetKick, indexOffsetFromHeader);
             rawIndexStartReadingFrom = GetRawIndexFromCoordsFull(incrementingCoords, sourceKick, indexOffsetFromHeader);
-#if XDARRAYS_DEBUG
-            Debug.Log("Writing {" + source[rawIndexStartReadingFrom].ToString() + "} to coordinate {" + D_IArray2StringCSV(AddIntArrs(targetStartCoords, incrementingCoords)) + "}");
-#endif
+			
+			#if XDARRAYS_DEBUG
+				Debug.Log("Writing {" + source[rawIndexStartReadingFrom].ToString() + "} to coordinate {" + D_IArray2StringCSV(AddIntArrs(targetStartCoords, incrementingCoords)) + "}");
+			#endif
+
             target[rawIndexStartWritingTo] = source[rawIndexStartReadingFrom];
         }
 
@@ -359,14 +357,12 @@ public class XDArray_Quaternions : UdonSharpBehaviour
         Quaternion[] output = new Quaternion[input.Length + 1];
         output[0].w = (float)((input[0]).w + 1);
 
-
         //new dimensions
         for (int i = 1; i < Mathf.RoundToInt(output[0].w); ++i)
         {
             output[i] = input[i];
         }
         output[Mathf.RoundToInt((input[0].w) + 1)].w = 1;
-
 
         //rest of data
         for (int i = Mathf.RoundToInt(output[0].w) + 1 ; i < output.Length; ++i)
@@ -387,13 +383,12 @@ public class XDArray_Quaternions : UdonSharpBehaviour
     /// <returns></returns>
     public Quaternion[] DimensionsFlattenFromXDQArray(Quaternion[] input, int dimToRemove)
     {
-#if XDARRAYS_DEBUG
-        if(Mathf.RoundToInt(input[dimToRemove + 1].w)  != 1 )
-        {
-            Debug.Log("XDQARRAY WARNING: Attempting to flatten a dimension not the length of 1! This WILL cause problems!");
-        }
-
-#endif
+		#if XDARRAYS_DEBUG
+			if(Mathf.RoundToInt(input[dimToRemove + 1].w)  != 1 )
+			{
+				Debug.Log("XDQARRAY WARNING: Attempting to flatten a dimension not the length of 1! This WILL cause problems!");
+			}
+		#endif
 
         Quaternion[] output = new Quaternion[input.Length - 1];
         output[0].w = ((float)(input[0]).w - 1);
@@ -432,9 +427,7 @@ public class XDArray_Quaternions : UdonSharpBehaviour
     /////////////////////////Debug Related////////////////////////
     //////////////////////////////////////////////////////////////
     #region Debug Related
-
-
-    /// <summary>
+/// <summary>
     /// Converts a Int_Array (Not an XDArray!) into a single string CSV
     /// </summary>
     /// <param name="iArr"></param>
@@ -456,8 +449,7 @@ public class XDArray_Quaternions : UdonSharpBehaviour
     ////////////////////////Work Functions////////////////////////
     //////////////////////////////////////////////////////////////
     #region Work Functions
-
-    /// <summary>
+	/// <summary>
     /// Simply adds the elements of 2 int Arrs
     /// </summary>
     /// <param name="A"></param>
@@ -530,9 +522,7 @@ public class XDArray_Quaternions : UdonSharpBehaviour
                 ++curLayer;
             }
         }
-
         return coord;
-
     }
 	
 	/// <summary>
@@ -551,7 +541,5 @@ public class XDArray_Quaternions : UdonSharpBehaviour
 		output[dimArr.Length] = newDimLength;
 		return output;
 	}
-	
-
     #endregion
 }

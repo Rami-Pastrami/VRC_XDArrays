@@ -15,17 +15,13 @@ using VRC.Udon;
 
 public class XDArray_Ints : UdonSharpBehaviour
 {
-    
-	
-	
-	
-	
+
 	private void Start()
     {
         Debug.Log("XDIArrays is being utilized! Created by Rami-Pastrami! If you are reading this you are a nerd!");
-#if (XDARRAYS_DEBUG)
-        Debug.Log("XDIArrays Debug Mode is Enabled! If you are seeing this in a public map, please tell the creator to disable this!");
-#endif
+		#if (XDARRAYS_DEBUG)
+			Debug.Log("XDIArrays Debug Mode is Enabled! If you are seeing this in a public map, please tell the creator to disable this!");
+		#endif
 
     }
 	
@@ -59,9 +55,9 @@ public class XDArray_Ints : UdonSharpBehaviour
             output[i] = input[(i - startIndex)];
         }
 
-#if XDARRAYS_DEBUG
-        Debug.Log("Converted normal intArr to XDIArr with Dimensions {" + D_IArray2StringCSV(dimensions) + "}");
-#endif
+		#if XDARRAYS_DEBUG
+			Debug.Log("Converted normal intArr to XDIArr with Dimensions {" + D_IArray2StringCSV(dimensions) + "}");
+		#endif
 
         return output;
     }
@@ -87,9 +83,9 @@ public class XDArray_Ints : UdonSharpBehaviour
     {
         int offset = 1 + (XDIArr[0]);
 
-#if XDARRAYS_DEBUG
-        Debug.Log("Attempting to convert XDIArr to a normal IArr, which had " + (offset - 1).ToString() + " dimensions");
-#endif
+		#if XDARRAYS_DEBUG
+			Debug.Log("Attempting to convert XDIArr to a normal IArr, which had " + (offset - 1).ToString() + " dimensions");
+		#endif
 
         int[] output = new int[(XDIArr.Length - offset)];
         for (int i = offset; i < XDIArr.Length; ++i)
@@ -106,9 +102,9 @@ public class XDArray_Ints : UdonSharpBehaviour
     /// <returns></returns>
     public int[] CreateXDIArr(int[] dimensions)
     {
-#if XDARRAYS_DEBUG
-        Debug.Log("Creating empty XDIArray of dimensions {" + D_IArray2StringCSV(dimensions) + "}");
-#endif
+		#if XDARRAYS_DEBUG
+			Debug.Log("Creating empty XDIArray of dimensions {" + D_IArray2StringCSV(dimensions) + "}");
+		#endif
         int[] output = new int[(1 + dimensions.Length + MultiplyIntArrElements(dimensions))];
         output[0] = dimensions.Length;
         for (int i = 0; i < (dimensions.Length); ++i)
@@ -133,26 +129,23 @@ public class XDArray_Ints : UdonSharpBehaviour
     public int[] ReadXDIArrDims(int[] input)
     {
 
-#if XDARRAYS_DEBUG
-        Debug.Log("Checking number of dimensions in input XDIArray...");
-#endif
+		#if XDARRAYS_DEBUG
+			Debug.Log("Checking number of dimensions in input XDIArray...");
+		#endif
 
         int[] output = new int[(input[0])];
         for (int i = 0; i < (output.Length); ++i)
         {
             output[i] = (input[(i + 1)]);
         }
-
-#if XDARRAYS_DEBUG
-        Debug.Log("Confirmed dimensions are {" + D_IArray2StringCSV(output) + "}");
-#endif
-
+		#if XDARRAYS_DEBUG
+			Debug.Log("Confirmed dimensions are {" + D_IArray2StringCSV(output) + "}");
+		#endif
         return output;
     }
 
     /// <summary>
     /// Gets the raw index of the array from a given coordinate
-    /// 
     /// </summary>
     /// <param name="coords"></param>
     /// <param name="kick"></param>
@@ -164,7 +157,6 @@ public class XDArray_Ints : UdonSharpBehaviour
         {
             indexOffset += (coords[coordIndex] * kick[coordIndex]);
         }
-
         return indexOffset;
     }
 
@@ -184,9 +176,9 @@ public class XDArray_Ints : UdonSharpBehaviour
     /// <returns></returns>
     public int ReadSingleElementFromXDIArr(int[] readFrom, int[] coords)
     {
-#if XDARRAYS_DEBUG
-        Debug.Log("Reading element in coord {" + D_IArray2StringCSV(coords) + "} from XDArray of dimensions {" + D_IArray2StringCSV(ReadXDIArrDims(readFrom)) + "}");
-#endif
+		#if XDARRAYS_DEBUG
+			Debug.Log("Reading element in coord {" + D_IArray2StringCSV(coords) + "} from XDArray of dimensions {" + D_IArray2StringCSV(ReadXDIArrDims(readFrom)) + "}");
+		#endif
         int[] kick = CalcPerCoordKick(ReadXDIArrDims(readFrom));
         int indexOffset = 1 + coords.Length;
         return readFrom[GetRawIndexFromCoordsFull(coords, kick, indexOffset)];
@@ -234,22 +226,26 @@ public class XDArray_Ints : UdonSharpBehaviour
         int rawIndex_readFrom = GetRawIndexFromCoordsFull(readingStartCoords, readingKick, indexOffsetFromHeader);
         int rawIndex_readTo = indexOffsetFromHeader;
 
-#if XDARRAYS_DEBUG
-        Debug.Log("Reading from XDArray of dimensions {" + D_IArray2StringCSV(readingDims) + "} starting from {" + D_IArray2StringCSV(readingStartCoords) + "} section of size {" + D_IArray2StringCSV(distFromCords) + "}");
-#endif
+		#if XDARRAYS_DEBUG
+			Debug.Log("Reading from XDArray of dimensions {" + D_IArray2StringCSV(readingDims) + "} starting from {" + D_IArray2StringCSV(readingStartCoords) + "} section of size {" + D_IArray2StringCSV(distFromCords) + "}");
+		#endif
 
         readTo[rawIndex_readTo] = readFrom[rawIndex_readFrom]; //IncrementDimCoords is not smart enough to start with 0,0,0..., so we are doing that seperately
         for (int i = 1; i < numElementsToRead; ++i)
         {
             incrementingCoords = IncrementDimCoords(incrementingCoords, distFromCords, i);
-#if XDARRAYS_DEBUG
-            Debug.Log("Reading Coordinate {" + D_IArray2StringCSV(AddIntArrs(readingStartCoords, incrementingCoords)) + "}");
-#endif
+			
+			#if XDARRAYS_DEBUG
+				Debug.Log("Reading Coordinate {" + D_IArray2StringCSV(AddIntArrs(readingStartCoords, incrementingCoords)) + "}");
+			#endif
+			
             rawIndex_readFrom = GetRawIndexFromCoordsFull(AddIntArrs(readingStartCoords, incrementingCoords), readingKick, indexOffsetFromHeader);
             rawIndex_readTo = GetRawIndexFromCoordsFull(incrementingCoords, readToKick, indexOffsetFromHeader);
-#if XDARRAYS_DEBUG
-            Debug.Log("Wrote value {" + readFrom[rawIndex_readFrom] + "}");
-#endif
+			
+			#if XDARRAYS_DEBUG
+				Debug.Log("Wrote value {" + readFrom[rawIndex_readFrom] + "}");
+			#endif
+			
             readTo[rawIndex_readTo] = readFrom[rawIndex_readFrom];
         }
 
@@ -273,9 +269,9 @@ public class XDArray_Ints : UdonSharpBehaviour
     /// <returns></returns>
     public int[] WriteSingleElementToXDIArray(int[] writeTo, int[] coords, int ValueToWrite)
     {
-#if XDARRAYS_DEBUG
-        Debug.Log("writing value {" + ValueToWrite.ToString() + "} in coord {" + D_IArray2StringCSV(coords) + "} from XDArray of dimensions {" + D_IArray2StringCSV(ReadXDIArrDims(writeTo)) + "}");
-#endif        
+		#if XDARRAYS_DEBUG
+			Debug.Log("writing value {" + ValueToWrite.ToString() + "} in coord {" + D_IArray2StringCSV(coords) + "} from XDArray of dimensions {" + D_IArray2StringCSV(ReadXDIArrDims(writeTo)) + "}");
+		#endif        
         int[] kick = CalcPerCoordKick(ReadXDIArrDims(writeTo));
         int indexOffset = 1 + coords.Length;
         writeTo[GetRawIndexFromCoordsFull(coords, kick, indexOffset)] = ValueToWrite;
@@ -323,9 +319,9 @@ public class XDArray_Ints : UdonSharpBehaviour
         int rawIndexStartWritingTo = GetRawIndexFromCoordsFull(targetStartCoords, targetKick, indexOffsetFromHeader); //raw index starting point for writing
         int rawIndexStartReadingFrom = indexOffsetFromHeader; //GetRawIndexFromCoordsFull(incrementingCoords, sourceKick, indexOffsetFromHeader);
 
-#if XDARRAYS_DEBUG
-        Debug.Log("Writing to XDIArray of dimensions {" + D_IArray2StringCSV(targetDims) + "} starting from {" + D_IArray2StringCSV(targetStartCoords) + "} section of size {" + D_IArray2StringCSV(sourceDims) + "}");
-#endif
+		#if XDARRAYS_DEBUG
+			Debug.Log("Writing to XDIArray of dimensions {" + D_IArray2StringCSV(targetDims) + "} starting from {" + D_IArray2StringCSV(targetStartCoords) + "} section of size {" + D_IArray2StringCSV(sourceDims) + "}");
+		#endif
 
         target[rawIndexStartWritingTo] = source[rawIndexStartReadingFrom];
         for (int i = 1; i < numElementsToWrite; ++i)
@@ -333,9 +329,11 @@ public class XDArray_Ints : UdonSharpBehaviour
             incrementingCoords = IncrementDimCoords(incrementingCoords, sourceDims, i);
             rawIndexStartWritingTo = GetRawIndexFromCoordsFull(AddIntArrs(targetStartCoords, incrementingCoords), targetKick, indexOffsetFromHeader);
             rawIndexStartReadingFrom = GetRawIndexFromCoordsFull(incrementingCoords, sourceKick, indexOffsetFromHeader);
-#if XDARRAYS_DEBUG
-            Debug.Log("Writing {" + source[rawIndexStartReadingFrom].ToString() + "} to coordinate {" + D_IArray2StringCSV(AddIntArrs(targetStartCoords, incrementingCoords)) + "}");
-#endif
+			
+			#if XDARRAYS_DEBUG
+				Debug.Log("Writing {" + source[rawIndexStartReadingFrom].ToString() + "} to coordinate {" + D_IArray2StringCSV(AddIntArrs(targetStartCoords, incrementingCoords)) + "}");
+			#endif
+
             target[rawIndexStartWritingTo] = source[rawIndexStartReadingFrom];
         }
 
@@ -359,14 +357,12 @@ public class XDArray_Ints : UdonSharpBehaviour
         int[] output = new int[input.Length + 1];
         output[0] = ((input[0]) + 1);
 
-
         //new dimensions
         for (int i = 1; i < (output[0]); ++i)
         {
             output[i] = input[i];
         }
         output[((input[0]) + 1)] = 1;
-
 
         //rest of data
         for (int i = (output[0]) + 1 ; i < output.Length; ++i)
@@ -387,13 +383,12 @@ public class XDArray_Ints : UdonSharpBehaviour
     /// <returns></returns>
     public int[] DimensionsFlattenFromXDIArray(int[] input, int dimToRemove)
     {
-#if XDARRAYS_DEBUG
-        if((input[dimToRemove + 1])  != 1 )
-        {
-            Debug.Log("XDIARRAY WARNING: Attempting to flatten a dimension not the length of 1! This WILL cause problems!");
-        }
-
-#endif
+		#if XDARRAYS_DEBUG
+			if((input[dimToRemove + 1])  != 1 )
+			{
+				Debug.Log("XDIARRAY WARNING: Attempting to flatten a dimension not the length of 1! This WILL cause problems!");
+			}
+		#endif
 
         int[] output = new int[input.Length - 1];
         output[0] = ((input[0]) - 1);
@@ -432,9 +427,7 @@ public class XDArray_Ints : UdonSharpBehaviour
     /////////////////////////Debug Related////////////////////////
     //////////////////////////////////////////////////////////////
     #region Debug Related
-
-
-    /// <summary>
+/// <summary>
     /// Converts a Int_Array (Not an XDArray!) into a single string CSV
     /// </summary>
     /// <param name="iArr"></param>
@@ -456,8 +449,7 @@ public class XDArray_Ints : UdonSharpBehaviour
     ////////////////////////Work Functions////////////////////////
     //////////////////////////////////////////////////////////////
     #region Work Functions
-
-    /// <summary>
+	/// <summary>
     /// Simply adds the elements of 2 int Arrs
     /// </summary>
     /// <param name="A"></param>
@@ -530,9 +522,7 @@ public class XDArray_Ints : UdonSharpBehaviour
                 ++curLayer;
             }
         }
-
         return coord;
-
     }
 	
 	/// <summary>
@@ -551,7 +541,5 @@ public class XDArray_Ints : UdonSharpBehaviour
 		output[dimArr.Length] = newDimLength;
 		return output;
 	}
-	
-
     #endregion
 }
